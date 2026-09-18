@@ -5,7 +5,7 @@
 ----------------------------------------------------------- */
 
 const TEXT_FOLDER = 'texts/';
-const JSON_FILE = '_files.json';
+const JSON_FILE = '!files.json';
 
 /* -----------------------------------------------------------
    DOM elements
