@@ -475,3 +475,4 @@ function applyFontSize() {
 
 	typingInput.style.fontSize = size;
 }
+

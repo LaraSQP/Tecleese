@@ -23,25 +23,13 @@ let saveTimer = null;
    Initialization
 ----------------------------------------------------------- */
 
-resumeSelector.addEventListener(
-    'change',
-    handleTextChange
-);
+resumeSelector.addEventListener('change', handleTextChange);
 
-resumeDisplay.addEventListener(
-    'click',
-    handleClick
-);
+resumeDisplay.addEventListener('click', handleClick);
 
-document.addEventListener(
-    'visibilitychange',
-    handleVisibilityChange
-);
+document.addEventListener('visibilitychange', handleVisibilityChange);
 
-window.addEventListener(
-    'pagehide',
-    saveCaretPosition
-);
+window.addEventListener('pagehide', saveCaretPosition);
 
 /*
    Watch for:
@@ -52,15 +40,13 @@ window.addEventListener(
    worker.js changes classes after processing input.
 */
 
-const resumeObserver = new MutationObserver(
-    handleDisplayMutations
-);
+const resumeObserver = new MutationObserver(handleDisplayMutations);
 
 resumeObserver.observe(resumeDisplay, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class']
+	childList: true,
+	subtree: true,
+	attributes: true,
+	attributeFilter: ['class'],
 });
 
 /* -----------------------------------------------------------
@@ -68,11 +54,9 @@ resumeObserver.observe(resumeDisplay, {
 ----------------------------------------------------------- */
 
 function handleTextChange() {
+	restoredTextFile = '';
 
-    restoredTextFile = '';
-
-    scheduleRestore();
-
+	scheduleRestore();
 }
 
 /* -----------------------------------------------------------
@@ -80,33 +64,26 @@ function handleTextChange() {
 ----------------------------------------------------------- */
 
 function handleDisplayMutations(mutations) {
+	let textStructureChanged = false;
+	let typingPositionChanged = false;
 
-    let textStructureChanged = false;
-    let typingPositionChanged = false;
+	for (const mutation of mutations) {
+		if (mutation.type === 'childList') {
+			textStructureChanged = true;
+		}
 
-    for (const mutation of mutations) {
+		if (mutation.type === 'attributes' && mutation.target.classList.contains('char')) {
+			typingPositionChanged = true;
+		}
+	}
 
-        if (mutation.type === 'childList') {
-            textStructureChanged = true;
-        }
+	if (textStructureChanged) {
+		scheduleRestore();
+	}
 
-        if (
-            mutation.type === 'attributes' &&
-            mutation.target.classList.contains('char')
-        ) {
-            typingPositionChanged = true;
-        }
-
-    }
-
-    if (textStructureChanged) {
-        scheduleRestore();
-    }
-
-    if (typingPositionChanged) {
-        scheduleSave();
-    }
-
+	if (typingPositionChanged) {
+		scheduleSave();
+	}
 }
 
 /* -----------------------------------------------------------
@@ -114,15 +91,13 @@ function handleDisplayMutations(mutations) {
 ----------------------------------------------------------- */
 
 function handleClick() {
-
-    /*
+	/*
        worker.js processes the click first.
        The MutationObserver then notices the changed .current
        class and schedules the save.
     */
 
-    scheduleSave();
-
+	scheduleSave();
 }
 
 /* -----------------------------------------------------------
@@ -130,18 +105,14 @@ function handleClick() {
 ----------------------------------------------------------- */
 
 function scheduleSave() {
+	if (saveTimer !== null) {
+		return;
+	}
 
-    if (saveTimer !== null) {
-        return;
-    }
-
-    saveTimer = setTimeout(() => {
-
-        saveTimer = null;
-        saveCaretPosition();
-
-    }, 50);
-
+	saveTimer = setTimeout(() => {
+		saveTimer = null;
+		saveCaretPosition();
+	}, 50);
 }
 
 /* -----------------------------------------------------------
@@ -149,15 +120,13 @@ function scheduleSave() {
 ----------------------------------------------------------- */
 
 function getStorageKey() {
+	const filename = resumeSelector.value;
 
-    const filename = resumeSelector.value;
+	if (!filename) {
+		return null;
+	}
 
-    if (!filename) {
-        return null;
-    }
-
-    return RESUME_KEY_PREFIX + filename;
-
+	return RESUME_KEY_PREFIX + filename;
 }
 
 /* -----------------------------------------------------------
@@ -165,64 +134,42 @@ function getStorageKey() {
 ----------------------------------------------------------- */
 
 function saveCaretPosition() {
+	const key = getStorageKey();
 
-    const key = getStorageKey();
+	if (!key) {
+		return;
+	}
 
-    if (!key) {
-        return;
-    }
+	const currentCharacter = resumeDisplay.querySelector('.char.current');
 
-    const currentCharacter = resumeDisplay.querySelector(
-        '.char.current'
-    );
+	let position;
 
-    let position;
-
-    if (currentCharacter) {
-
-        position = Number(
-            currentCharacter.dataset.index
-        );
-
-    } else {
-
-        /*
+	if (currentCharacter) {
+		position = Number(currentCharacter.dataset.index);
+	} else {
+		/*
            If no current character exists, the text may be
            complete. Save the position after the last char.
         */
 
-        const characters = resumeDisplay.querySelectorAll(
-            '.char'
-        );
+		const characters = resumeDisplay.querySelectorAll('.char');
 
-        position = characters.length;
+		position = characters.length;
+	}
 
-    }
+	if (!Number.isInteger(position) || position < 0) {
+		return;
+	}
 
-    if (!Number.isInteger(position) || position < 0) {
-        return;
-    }
-
-    try {
-
-        localStorage.setItem(
-            key,
-            String(position)
-        );
-
-    } catch (error) {
-
-        /*
+	try {
+		localStorage.setItem(key, String(position));
+	} catch (error) {
+		/*
            Storage failure must never affect typing.
         */
 
-        console.warn(
-            'Could not save caret position:',
-            error
-        );
-
-    }
-
+		console.warn('Could not save caret position:', error);
+	}
 }
 
 /* -----------------------------------------------------------
@@ -230,11 +177,9 @@ function saveCaretPosition() {
 ----------------------------------------------------------- */
 
 function handleVisibilityChange() {
-
-    if (document.visibilityState === 'hidden') {
-        saveCaretPosition();
-    }
-
+	if (document.visibilityState === 'hidden') {
+		saveCaretPosition();
+	}
 }
 
 /* -----------------------------------------------------------
@@ -242,120 +187,95 @@ function handleVisibilityChange() {
 ----------------------------------------------------------- */
 
 function scheduleRestore() {
+	if (restoreTimer !== null) {
+		return;
+	}
 
-    if (restoreTimer !== null) {
-        return;
-    }
-
-    restoreTimer = setTimeout(() => {
-
-        restoreTimer = null;
-        restoreCaretPosition();
-
-    }, 50);
-
+	restoreTimer = setTimeout(() => {
+		restoreTimer = null;
+		restoreCaretPosition();
+	}, 50);
 }
 
 function restoreCaretPosition() {
+	const filename = resumeSelector.value;
 
-    const filename = resumeSelector.value;
+	if (!filename) {
+		return;
+	}
 
-    if (!filename) {
-        return;
-    }
-
-    /*
+	/*
        Do not restore repeatedly for the same text.
     */
 
-    if (restoredTextFile === filename) {
-        return;
-    }
+	if (restoredTextFile === filename) {
+		return;
+	}
 
-    const characters = resumeDisplay.querySelectorAll(
-        '.char'
-    );
+	const characters = resumeDisplay.querySelectorAll('.char');
 
-    if (characters.length === 0) {
-        return;
-    }
+	if (characters.length === 0) {
+		return;
+	}
 
-    let savedPosition;
+	let savedPosition;
 
-    try {
+	try {
+		const savedValue = localStorage.getItem(getStorageKey());
 
-        const savedValue = localStorage.getItem(
-            getStorageKey()
-        );
+		if (savedValue === null) {
+			restoredTextFile = filename;
+			return;
+		}
 
-        if (savedValue === null) {
+		savedPosition = Number(savedValue);
+	} catch (error) {
+		console.warn('Could not restore caret position:', error);
 
-            restoredTextFile = filename;
-            return;
+		restoredTextFile = filename;
+		return;
+	}
 
-        }
+	if (
+		!Number.isInteger(savedPosition) ||
+		savedPosition < 0 ||
+		savedPosition >= characters.length
+	) {
+		restoredTextFile = filename;
+		return;
+	}
 
-        savedPosition = Number(savedValue);
+	const savedCharacter = characters[savedPosition];
 
-    } catch (error) {
-
-        console.warn(
-            'Could not restore caret position:',
-            error
-        );
-
-        restoredTextFile = filename;
-        return;
-
-    }
-
-    if (
-        !Number.isInteger(savedPosition) ||
-        savedPosition < 0 ||
-        savedPosition >= characters.length
-    ) {
-
-        restoredTextFile = filename;
-        return;
-
-    }
-
-    const savedCharacter = characters[savedPosition];
-
-    /*
+	/*
        Mark as restored before dispatching the click.
     */
 
-    restoredTextFile = filename;
+	restoredTextFile = filename;
 
-    /*
+	/*
        Use worker.js's normal click handling.
     */
 
-    savedCharacter.dispatchEvent(
-        new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-        })
-    );
+	savedCharacter.dispatchEvent(
+		new MouseEvent('click', {
+			bubbles: true,
+			cancelable: true,
+			view: window,
+		})
+	);
 
-    /*
+	/*
        Scroll after worker.js has processed the click.
     */
 
-    requestAnimationFrame(() => {
-
-        requestAnimationFrame(() => {
-
-            savedCharacter.scrollIntoView({
-                block: 'center',
-                inline: 'nearest',
-                behavior: 'auto'
-            });
-
-        });
-
-    });
-
+	requestAnimationFrame(() => {
+		requestAnimationFrame(() => {
+			savedCharacter.scrollIntoView({
+				block: 'center',
+				inline: 'nearest',
+				behavior: 'auto',
+			});
+		});
+	});
 }
