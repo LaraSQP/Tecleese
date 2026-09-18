@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+		<title>Tecléese</title>
+
+		<link rel="stylesheet" href="style.css" />
+	</head>
+
+	<body>
+		<main class="app">
+			<section class="controls-section">
+				<div class="control-buttons">
+					<button id="resetTypingButton" title="Reload text, ie, clear all colors">
+						⟲
+					</button>
+
+					<button id="showKeyboardButton" title="Show keyboard">⌨</button>
+
+					<button
+						id="decreaseFontButton"
+						aria-label="Decrease font size"
+						title="Decrease font size"
+					>
+						A−
+					</button>
+
+					<button
+						id="increaseFontButton"
+						aria-label="Increase font size"
+						title="Increase font size"
+					>
+						A+
+					</button>
+				</div>
+			</section>
+
+			<section class="text-selector-section">
+				<select id="textSelector" aria-label="Select text">
+					<!-- Options are added by JavaScript -->
+				</select>
+			</section>
+
+			<!-- Typing area -->
+
+			<section class="typing-area">
+				<div
+					id="textDisplay"
+					class="text-display"
+					aria-label="Reading and typing text"
+				></div>
+
+				<textarea
+					id="typingInput"
+					class="keyboard-input"
+					inputmode="text"
+					autocomplete="off"
+					autocorrect="off"
+					autocapitalize="off"
+					spellcheck="false"
+					aria-label="Type the selected text here"
+				></textarea>
+			</section>
+		</main>
+
+		<script src="worker.js"></script>
+		<script src="resume.js"></script>
+	</body>
+</html>

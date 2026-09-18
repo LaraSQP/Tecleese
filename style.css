@@ -1,0 +1,266 @@
+:root {
+	--typing-font-size: 1.35rem;
+	--page-padding: 8px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background: #000;
+	color: #fff;
+	font-family: Arial, sans-serif;
+}
+
+body {
+	min-height: 100dvh;
+}
+
+button,
+select,
+textarea {
+	font: inherit;
+}
+
+button,
+select {
+	min-height: 40px;
+	border: 1px solid #555;
+	border-radius: 6px;
+	background: #202020;
+	color: #fff;
+}
+
+button {
+	padding: 0 11px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+button:active {
+	background: #404040;
+}
+
+select {
+	width: 100%;
+	min-width: 0;
+	padding: 0 8px;
+	text-overflow: ellipsis;
+}
+
+.app {
+	display: flex;
+	flex-direction: column;
+
+	width: 100%;
+	height: 100%;
+	height: 100dvh;
+
+	padding: max(var(--page-padding), env(safe-area-inset-top))
+		max(var(--page-padding), env(safe-area-inset-right))
+		max(var(--page-padding), env(safe-area-inset-bottom))
+		max(var(--page-padding), env(safe-area-inset-left));
+
+	overflow: hidden;
+}
+
+.controls-section {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+
+	width: 100%;
+	margin-bottom: 0.5rem;
+}
+
+.control-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+
+	width: 100%;
+}
+
+.text-selector-section {
+	width: 100%;
+	margin-bottom: 0.5rem;
+}
+
+.typing-area {
+	position: relative;
+
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+
+	width: 100%;
+	min-height: 0;
+	min-width: 0;
+
+	overflow: hidden;
+}
+
+.text-display {
+	flex: 1 1 auto;
+
+	width: 100%;
+	min-height: 0;
+	min-width: 0;
+
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	padding: 8px 2px 16px;
+
+	color: #777;
+	background: #000;
+
+	font-family: Arial, sans-serif;
+	font-size: var(--typing-font-size);
+	line-height: 1.55;
+
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
+
+	-webkit-overflow-scrolling: touch;
+
+	scrollbar-color: #aaa #303030;
+}
+
+.text-display::-webkit-scrollbar {
+	width: 10px;
+}
+
+.text-display::-webkit-scrollbar-track {
+	background: #303030;
+}
+
+.text-display::-webkit-scrollbar-thumb {
+	background: #aaa;
+	border-radius: 5px;
+}
+
+.char {
+	color: #777;
+	background: transparent;
+}
+
+.char.correct {
+	color: #fff;
+	background: transparent;
+}
+
+.char.incorrect {
+	color: #ff3030;
+	background: transparent;
+}
+
+.char.incorrect-space {
+	position: relative;
+	display: inline-block;
+
+	min-width: 0.35em;
+
+	color: transparent;
+	background: transparent;
+}
+
+.char.incorrect-space::after {
+	content: '·';
+
+	position: absolute;
+	left: 50%;
+	top: 50%;
+
+	transform: translate(-50%, -50%);
+
+	color: #ff3030;
+	font-weight: bold;
+	pointer-events: none;
+}
+
+.keyboard-input {
+	position: absolute;
+
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	width: 100%;
+	height: 100%;
+
+	margin: 0;
+	padding: 0;
+
+	opacity: 0;
+	border: 0;
+	outline: 0;
+	resize: none;
+
+	color: transparent;
+	background: transparent;
+
+	caret-color: transparent;
+
+	overflow: hidden;
+
+	/*
+       The text display must receive mouse/touch clicks.
+       JavaScript focuses this textarea programmatically.
+    */
+	pointer-events: none;
+}
+
+.keyboard-input:focus {
+	outline: none;
+}
+
+@media (max-width: 480px) {
+	:root {
+		--page-padding: 5px;
+	}
+
+	.controls-section,
+	.control-buttons {
+		gap: 4px;
+	}
+
+	button,
+	select {
+		min-height: 38px;
+	}
+
+	button {
+		padding: 0 8px;
+	}
+
+	.text-display {
+		padding-top: 6px;
+		padding-bottom: 12px;
+	}
+}
+
+@media (max-width: 360px) {
+	.controls-section,
+	.control-buttons {
+		gap: 3px;
+	}
+
+	button {
+		padding: 0 6px;
+	}
+}
+
+.char.current {
+	text-decoration-line: underline;
+	text-decoration-color: #ffffff;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
